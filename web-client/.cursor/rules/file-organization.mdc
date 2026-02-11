@@ -1,0 +1,594 @@
+---
+name: file-organization
+description: >
+  Comprehensive guide to file naming conventions, type patterns, file organization rules, and barrel exports structure for this project.
+---
+
+# File Organization & Naming Conventions
+
+## Overview
+
+This document defines strict naming conventions and file organization patterns that must be followed throughout the project. Consistent naming and organization make the codebase easier to navigate, understand, and maintain.
+
+## Naming Conventions
+
+### Strict Rules
+
+All naming must follow these conventions exactly:
+
+#### Files: kebab-case
+
+- **All file names** must use kebab-case (lowercase with hyphens)
+- Examples:
+  - ✅ `get-deal.ts`
+  - ✅ `use-post-file.ts`
+  - ✅ `ai-rewriter-input.tsx`
+  - ✅ `layout-header-nav.tsx`
+  - ❌ `getDeal.ts` (camelCase)
+  - ❌ `GetDeal.ts` (PascalCase)
+  - ❌ `get_deal.ts` (snake_case)
+
+#### Functions and Hooks: camelCase
+
+- **Function names** and **hook names** must use camelCase
+- Hooks must start with `use`
+- Examples:
+  - ✅ `getDeal` (function)
+  - ✅ `usePostFile` (hook)
+  - ✅ `useGetDealList` (hook)
+  - ✅ `formatNumber` (helper function)
+  - ❌ `GetDeal` (PascalCase)
+  - ❌ `get_deal` (snake_case)
+
+#### Components: PascalCase
+
+- **React component names** must use PascalCase
+- Examples:
+  - ✅ `DealCard`
+  - ✅ `AIRewriter`
+  - ✅ `LayoutHeader`
+  - ✅ `InputWithController`
+  - ❌ `dealCard` (camelCase)
+  - ❌ `deal-card` (kebab-case)
+
+#### Types: PascalCase with `T` Prefix
+
+- **All TypeScript types** must use PascalCase with `T` prefix
+- This is a **strict requirement** - no exceptions
+- Examples:
+  - ✅ `TDeal`
+  - ✅ `TFile`
+  - ✅ `TDealStatus`
+  - ✅ `TDealAssetUnit`
+  - ❌ `Deal` (missing `T` prefix)
+  - ❌ `IDeal` (wrong prefix)
+  - ❌ `deal` (lowercase)
+
+#### Constants: UPPER_SNAKE_CASE
+
+- **All constants** must use UPPER_SNAKE_CASE
+- Examples:
+  - ✅ `MAX_FILE_SIZE`
+  - ✅ `DEAL_STATUS_LABELS`
+  - ✅ `QUERY_STALE_TIME`
+  - ✅ `AI_REWRITER_MAX_INPUT_LENGTH`
+  - ❌ `maxFileSize` (camelCase)
+  - ❌ `MaxFileSize` (PascalCase)
+
+#### File-Export Name Correspondence
+
+- **File name must match the exported entity name** (converted to appropriate case)
+- Examples:
+  - File: `get-deal.ts` → Export: `getDeal`
+  - File: `use-post-file.ts` → Export: `usePostFile`
+  - File: `deal.tsx` → Export: `Deal`
+  - File: `ai-rewriter.tsx` → Export: `AIRewriter`
+
+## Type Patterns
+
+### API Functions
+
+Every API function file must follow this pattern:
+
+```typescript
+// api/get-deal.ts
+import {api} from "@/shared/configs/api"
+import {TDeal} from "@/entities/deal/model"
+
+export type GetDealParams = {
+	id: string
+}
+
+export type GetDealResponse = TDeal
+
+export const getDeal = (params: GetDealParams): Promise<GetDealResponse> => {
+	return api.get(`v1/deals/${params.id}`).json<GetDealResponse>()
+}
+```
+
+**Required elements:**
+
+- `{Operation}Params` type - input parameters
+- `{Operation}Response` type - return type
+- Function name matches file name (kebab-case → camelCase)
+- Explicit return type: `Promise<{Operation}Response>`
+- No type inference - all types must be explicit
+
+**Examples:**
+
+```typescript
+// api/post-deal.ts
+export type PostDealParams = { ... }
+export type PostDealResponse = TDeal
+export const postDeal = (params: PostDealParams): Promise<PostDealResponse>
+
+// api/get-deal-list.ts
+export type GetDealListParams = { page: number; limit: number }
+export type GetDealListResponse = { data: TDeal[]; meta: TApiMeta }
+export const getDealList = (params: GetDealListParams): Promise<GetDealListResponse>
+```
+
+### React Query Hooks
+
+Every query/mutation hook file must follow this pattern:
+
+#### Query Hooks
+
+```typescript
+// hooks/use-get-deal.ts
+import {getDeal, GetDealParams, GetDealResponse} from "@/entities/deal/api"
+import {QueryKeys} from "@/shared/constants/tanstack-query"
+import {queryOptions, useQuery, UseQueryOptions} from "@tanstack/react-query"
+
+export type UseGetDealOptions = UseQueryOptions<GetDealResponse, Error>
+
+export const getDealQueryKey = (params: GetDealParams) => [QueryKeys.DEAL, params.id]
+
+export const getDealQueryOptions = (
+	params: GetDealParams,
+	options?: Partial<UseGetDealOptions>,
+) => {
+	return queryOptions({
+		queryKey: getDealQueryKey(params),
+		queryFn: () => getDeal(params),
+		retry: 0,
+		...options,
+	})
+}
+
+export const useGetDeal = (params: GetDealParams, options?: Partial<UseGetDealOptions>) => {
+	return useQuery(getDealQueryOptions(params, options))
+}
+```
+
+**Required elements:**
+
+- `Use{Operation}Options` type - extends `UseQueryOptions<Response, Error>`
+- `{operation}QueryKey` function - generates query key
+- `{operation}QueryOptions` function - creates query options using `queryOptions` helper
+- `use{Operation}` hook - main hook using `useQuery`
+- Optional: `useGetSuspense{Operation}` for Suspense version
+
+#### Mutation Hooks
+
+```typescript
+// hooks/use-post-deal.ts
+import {postDeal, PostDealParams, PostDealResponse} from "@/entities/deal/api"
+import {MUTATION_KEYS} from "@/shared/constants/tanstack-query"
+import {useMutation, UseMutationOptions} from "@tanstack/react-query"
+
+export type UsePostDealOptions = UseMutationOptions<PostDealResponse, Error, PostDealParams>
+
+export const getPostDealMutationKey = () => [MUTATION_KEYS.DEAL_POST]
+
+export const usePostDeal = (options?: Partial<UsePostDealOptions>) => {
+	return useMutation({
+		mutationKey: getPostDealMutationKey(),
+		mutationFn: (params: PostDealParams) => postDeal(params),
+		retry: 1,
+		...options,
+	})
+}
+```
+
+**Required elements:**
+
+- `Use{Operation}Options` type - extends `UseMutationOptions<Response, Error, Params>`
+- `get{Operation}MutationKey` function - generates mutation key
+- `use{Operation}` hook - main hook using `useMutation`
+
+### React Components
+
+Every component file must follow this pattern:
+
+```typescript
+// ui/deal.tsx
+import {cn} from "@/shared/helpers/shadcn-ui"
+
+type DealProps = {
+	className?: string
+	// ... other props
+}
+
+function Deal({className, ...props}: DealProps) {
+	return (
+		<div className={cn(className)}>
+			{/* component content */}
+		</div>
+	)
+}
+
+export {Deal}
+```
+
+**Required elements:**
+
+- `{Component}Props` type - component props (use `type`, not `interface`)
+- Component function name matches file name (kebab-case → PascalCase)
+- Named export: `export {ComponentName}`
+- Use `cn()` helper for className merging
+- Use `React.forwardRef` if ref forwarding is needed
+- Always set `displayName` for forwardRef components
+
+**Example with forwardRef:**
+
+```typescript
+// ui/input.tsx
+import * as React from "react"
+import {cn} from "@/shared/helpers/shadcn-ui"
+
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+	({className, type, ...props}, ref) => {
+		return (
+			<input
+				type={type}
+				className={cn("base-classes", className)}
+				ref={ref}
+				{...props}
+			/>
+		)
+	},
+)
+Input.displayName = "Input"
+
+export {Input}
+```
+
+### Model Types
+
+Every types file must follow this pattern:
+
+```typescript
+// model/types.ts
+
+// Main entity type with T prefix
+export type TDeal = {
+	id: string
+	userId: string
+	title: string
+	description: string
+	type: TDealType
+	status: TDealStatus
+	// ... more fields
+}
+
+// Enums with T prefix
+export enum TDealStatus {
+	CREATED = "CREATED",
+	APPLICATION = "APPLICATION",
+	RUNNING = "RUNNING",
+	// ... more values
+}
+
+export enum TDealType {
+	SELL = "SELL",
+	BUY = "BUY",
+}
+
+// Related types with T prefix
+export type TDealAsset = {
+	id: string
+	dealId: string
+	// ... fields
+}
+
+export type TDealMember = {
+	id: string
+	dealId: string
+	status: TDealMemberStatus
+	// ... fields
+}
+```
+
+**Required elements:**
+
+- All types use `T` prefix
+- Enums use `T` prefix
+- Use `type` for type definitions
+- Use `enum` for enumerations
+- Group related types in the same file
+
+### Model Constants
+
+Every constants file must follow this pattern:
+
+```typescript
+// model/constants.ts
+import {TDealStatus, TDealType, TDealAssetUnit} from "./types"
+
+export const DEAL_MAX_AGE = 1000 * 60 * 10 // 10 minutes
+
+export const DEAL_STATUS_LABELS: Record<TDealStatus, string> = {
+	[TDealStatus.CREATED]: "Створено",
+	[TDealStatus.APPLICATION]: "Прийом заявок",
+	[TDealStatus.RUNNING]: "Проведення аукціону",
+	// ... more labels
+}
+
+export const DEAL_TYPE_LABELS: Record<TDealType, string> = {
+	[TDealType.SELL]: "Продаж",
+	[TDealType.BUY]: "Покупка",
+}
+```
+
+**Required elements:**
+
+- All constants use UPPER_SNAKE_CASE
+- Use `Record<EnumType, ValueType>` for label mappings
+- Helper functions can be included if they're pure functions
+
+## File Organization Rules
+
+### One File = One Operation (Strict Rule)
+
+**This is a strict rule with no exceptions.**
+
+Each API function, hook, or operation must be in its own separate file.
+
+#### ✅ CORRECT: Separate Files
+
+```
+api/
+├── get-deal.ts          # Single operation: get deal by ID
+├── get-deal-list.ts     # Single operation: get deal list
+├── post-deal.ts         # Single operation: create deal
+└── index.ts
+
+hooks/
+├── use-get-deal.ts      # Single hook: use get deal
+├── use-get-deal-list.ts # Single hook: use get deal list
+├── use-post-deal.ts     # Single hook: use post deal
+└── index.ts
+```
+
+#### ❌ WRONG: Grouped Operations
+
+```
+api/
+├── deal-api.ts          # ❌ Multiple operations in one file
+└── index.ts
+
+// deal-api.ts contains:
+export const getDeal = ...
+export const getDealList = ...
+export const postDeal = ...
+```
+
+### Exception: Helper Functions Grouping
+
+Helper functions can be grouped in two ways:
+
+#### 1. Local Helpers: `helpers.tsx`
+
+If you have multiple related helper functions used only within a feature/entity:
+
+```typescript
+// features/ai-rewriter/helpers.tsx
+export const formatAiOutput = (text: string): string => { ... }
+export const validateAiInput = (text: string): boolean => { ... }
+export const parseAiResponse = (response: any): string => { ... }
+```
+
+**Requirements:**
+
+- Must be pure functions (no external dependencies)
+- Must follow SOLID principles
+- Only create if functions are frequently used together
+- Functions should be related to the same domain
+
+#### 2. Global Helpers: `src/shared/helpers/{domain}.ts`
+
+For global helper functions, group by domain:
+
+```
+src/shared/helpers/
+├── array.ts          # All array-related helpers
+├── file.ts           # All file-related helpers
+├── number.ts         # All number-related helpers
+├── formdata.ts       # All FormData-related helpers
+└── shadcn-ui.ts     # UI helper (cn function)
+```
+
+**Examples:**
+
+```typescript
+// shared/helpers/array.ts
+export const arrayMove = <T>(array: T[], fromIndex: number, toIndex: number): T[] => { ... }
+
+// shared/helpers/file.ts
+export const getFileBlob = async (url: string): Promise<Blob> => { ... }
+export const formatFileSize = (bytes: number): string => { ... }
+export const areFilesEqual = (file1: File, file2: File): boolean => { ... }
+
+// shared/helpers/number.ts
+export const formatNumber = (
+	number: number,
+	options?: { locale?: string; ... }
+): string => { ... }
+```
+
+## Barrel Exports Structure
+
+All public APIs must be exported through `index.ts` files.
+
+### Root Level Export
+
+```typescript
+// entities/deal/index.ts
+export * from "./model"
+export * from "./api"
+export * from "./hooks"
+// Note: Only export ui/ if it exists
+```
+
+### Subfolder Exports
+
+#### API Folder
+
+```typescript
+// entities/deal/api/index.ts
+export * from "./get-deal"
+export * from "./get-deal-list"
+export * from "./post-deal"
+```
+
+#### Hooks Folder
+
+```typescript
+// entities/deal/hooks/index.ts
+export * from "./use-get-deal"
+export * from "./use-get-deal-list"
+export * from "./use-post-deal"
+```
+
+#### Model Folder
+
+```typescript
+// entities/deal/model/index.ts
+export * from "./types"
+export * from "./constants"
+```
+
+#### UI Folder (if exists)
+
+```typescript
+// entities/deal/ui/index.ts
+export * from "./deal"
+```
+
+### Usage Pattern
+
+```typescript
+// ✅ CORRECT: Import from public API
+import {TDeal, getDeal, useGetDeal} from "@/entities/deal"
+import {formatNumber} from "@/shared/helpers/number"
+
+// ❌ WRONG: Import from internal paths
+import {TDeal} from "@/entities/deal/model/types" // ❌ Use public API
+import {getDeal} from "@/entities/deal/api/get-deal" // ❌ Use public API
+```
+
+## Helper Functions Organization
+
+### When to Create `helpers.tsx`
+
+Create `helpers.tsx` inside a feature/entity only if:
+
+1. **Multiple related helper functions** are needed
+2. **Functions are used frequently** within the feature/entity
+3. **Functions are pure** (no external dependencies, no side effects)
+4. **Functions follow SOLID principles**
+5. **Functions are specific** to that feature/entity (not reusable globally)
+
+### When to Use `src/shared/helpers/{domain}.ts`
+
+Use global helpers in `src/shared/helpers/` when:
+
+1. **Functions are reusable** across multiple features/entities
+2. **Functions are domain-specific** but not feature-specific
+3. **Functions are pure** utility functions
+4. **Functions follow SOLID principles**
+
+### Examples from Project
+
+**Global Helpers:**
+
+- `src/shared/helpers/array.ts` - `arrayMove` (reusable array manipulation)
+- `src/shared/helpers/file.ts` - `getFileBlob`, `formatFileSize`, `areFilesEqual` (file utilities)
+- `src/shared/helpers/number.ts` - `formatNumber` (number formatting)
+- `src/shared/helpers/formdata.ts` - `getFormDataPayload` (FormData utilities)
+- `src/shared/helpers/shadcn-ui.ts` - `cn` (UI class merging)
+
+**Local Helpers (if needed):**
+
+- `features/ai-rewriter/helpers.tsx` - AI-specific formatting/parsing functions (if they exist)
+
+## Edge Cases
+
+### Optional Folders
+
+- **`ui/` folder** - Only create if UI components are needed
+
+  - Example: `src/entities/file/` has no `ui/` folder (file operations only)
+  - Example: `src/entities/deal/` has `ui/` folder (deal display component)
+
+- **`helpers.tsx`** - Only create if frequently used pure functions are needed
+  - Must be pure functions (no external dependencies)
+  - Must follow SOLID principles
+  - Prefer global helpers in `src/shared/helpers/` when possible
+
+### Empty Folders
+
+- Empty folders during development are acceptable
+- Example: `src/features/auth/` may exist but be empty during development
+
+### Type Inference
+
+- **No type inference** - All types must be explicit
+- Always provide explicit return types for functions
+- Always provide explicit types for function parameters when not obvious
+- Use `Promise<Type>` for async functions, not inferred types
+
+## Quick Reference Checklist
+
+### Creating a New API Function
+
+- [ ] Create file: `api/{operation-name}.ts` (kebab-case)
+- [ ] Export `{Operation}Params` type
+- [ ] Export `{Operation}Response` type
+- [ ] Export function: `{operationName}` (camelCase, matches file name)
+- [ ] Explicit return type: `Promise<{Operation}Response>`
+- [ ] Add to `api/index.ts` exports
+
+### Creating a New Hook
+
+- [ ] Create file: `hooks/use-{operation-name}.ts` (kebab-case)
+- [ ] Export `Use{Operation}Options` type
+- [ ] Export `{operation}QueryKey` or `get{Operation}MutationKey` function
+- [ ] Export `use{Operation}` hook (camelCase, matches file name)
+- [ ] Add to `hooks/index.ts` exports
+
+### Creating a New Component
+
+- [ ] Create file: `ui/{component-name}.tsx` (kebab-case)
+- [ ] Export `{Component}Props` type
+- [ ] Export component: `{ComponentName}` (PascalCase, matches file name)
+- [ ] Use named export: `export {ComponentName}`
+- [ ] Use `cn()` for className merging
+- [ ] Add `displayName` if using `forwardRef`
+- [ ] Add to `ui/index.ts` exports (if ui/ exists)
+
+### Creating a New Type
+
+- [ ] Add to `model/types.ts`
+- [ ] Use `T` prefix: `T{EntityName}`
+- [ ] Use `type` keyword (not `interface` for component props)
+- [ ] Use `enum` for enumerations with `T` prefix
+- [ ] Export from `model/index.ts`
+
+### Creating a New Constant
+
+- [ ] Add to `model/constants.ts`
+- [ ] Use UPPER_SNAKE_CASE
+- [ ] Use `Record<EnumType, ValueType>` for label mappings
+- [ ] Export from `model/index.ts`
