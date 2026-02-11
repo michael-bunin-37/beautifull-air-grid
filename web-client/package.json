@@ -6,9 +6,12 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "eslint",
+		"lint:fix": "eslint --fix .",
+		"lint:check": "eslint .",
 		"format": "prettier --write .",
-		"format:check": "prettier --check ."
+		"format:check": "prettier --check .",
+		"types:check": "tsc --noEmit",
+		"prepare": "cd .. && husky web-client/.husky"
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.95.3",
@@ -23,6 +26,7 @@
 		"@types/react-dom": "^19",
 		"eslint": "^9",
 		"eslint-config-next": "16.1.6",
+		"husky": "^9.1.7",
 		"prettier": "^3.8.1",
 		"tailwindcss": "^4",
 		"typescript": "^5"
