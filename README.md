@@ -25,6 +25,9 @@ The technology choices were made to prioritize performance, developer experience
 - **[Next.js 16](https://nextjs.org/)**: The framework for React, used for both the frontend and the Backend-for-Frontend (BFF) API layer.
 - **[TypeScript](https://www.typescriptlang.org/)**: For static type checking and improved developer tooling.
 - **[React 19](https://react.dev/)**: Leveraging the latest concurrent rendering features.
+
+### Internationalization
+
 - **[next-intl](https://next-intl-docs.vercel.app/)**: Handles internationalization (i18n) using an `as-needed` routing strategy (URLs are prefixed with the locale only when necessary).
 
 ### Data & State Management
