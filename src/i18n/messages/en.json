@@ -1,0 +1,17 @@
+{
+	"home": {
+		"title": "Beautiful Air Grid",
+		"description": "Beautiful Air Grid is a platform for creating and sharing beautiful air grids."
+	},
+
+	"employee": {
+		"role": {
+			"MANAGER": "Manager",
+			"SOFTWARE_ENGINEER": "Software Engineer",
+			"DESIGNER": "Designer",
+			"MARKETING_SPECIALIST": "Marketing Specialist",
+			"HR_MANAGER": "HR Manager",
+			"ACCOUNTANT": "Accountant"
+		}
+	}
+}

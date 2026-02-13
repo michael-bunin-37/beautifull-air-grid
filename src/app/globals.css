@@ -1,0 +1,193 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@theme {
+	/* ===== COLORS ===== */
+
+	/* General */
+	--color-background: var(--color-white);
+	--color-foreground: var(--color-neutral-950);
+
+	/* Secondary */
+	--color-secondary: var(--color-neutral-100);
+	--color-secondary-foreground: var(--color-neutral-900);
+
+	/* Muted */
+	--color-muted: var(--color-neutral-100);
+	--color-muted-foreground: var(--color-neutral-600);
+
+	/* Primary */
+	--color-primary: var(--color-violet-500);
+	--color-primary-foreground: var(--color-white);
+
+	/* Border */
+	--color-border: var(--color-neutral-200);
+	--color-input: var(--color-neutral-200);
+
+	/* Accent */
+	--color-accent: var(--color-neutral-100);
+	--color-accent-foreground: var(--color-neutral-900);
+
+	/* Error */
+	--color-error: var(--color-red-500);
+	--color-error-foreground: var(--color-white);
+	--color-error-subtle: var(--color-red-100);
+	--color-error-subtle-foreground: var(--color-red-900);
+	--color-error-subtle-stroke: var(--color-red-200);
+
+	/* Success */
+	--color-success: var(--color-lime-500);
+	--color-success-foreground: var(--color-white);
+	--color-success-subtle: var(--color-lime-100);
+	--color-success-subtle-foreground: var(--color-lime-900);
+	--color-success-subtle-stroke: var(--color-lime-200);
+
+	/* Warning */
+	--color-warning: var(--color-amber-500);
+	--color-warning-foreground: var(--color-white);
+	--color-warning-subtle: var(--color-amber-100);
+	--color-warning-subtle-foreground: var(--color-amber-950);
+	--color-warning-subtle-stroke: var(--color-amber-200);
+
+	/* Info */
+	--color-info: var(--color-blue-500);
+	--color-info-foreground: var(--color-white);
+	--color-info-subtle: var(--color-blue-100);
+	--color-info-subtle-foreground: var(--color-blue-900);
+	--color-info-subtle-stroke: var(--color-blue-200);
+
+	/* Popover */
+	--color-popover: var(--color-white);
+	--color-popover-foreground: var(--color-neutral-950);
+
+	/* Card */
+	--color-card: var(--color-white);
+	--color-card-foreground: var(--color-neutral-950);
+
+	/* Destructive */
+	--color-destructive: var(--color-red-500);
+
+	/* Ring */
+	--color-ring: var(--color-violet-300);
+
+	/* ===== TYPOGRAPHY ===== */
+
+	/* Font families */
+	--font-sans: var(--font-geist-sans);
+	--font-mono: var(--font-geist-mono);
+
+	/* Font sizes */
+	--text-*: initial;
+	--text-xs: 13px;
+	--text-sm: 14px;
+	--text-base: 16px;
+	--text-md: 20px;
+	--text-lg: 24px;
+	--text-xl: 30px;
+	--text-2xl: 48px;
+
+	/* Font weights */
+	--font-weight-normal: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
+	--font-weight-extrabold: 800;
+	--font-weight-black: 900;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+	.dark {
+		/* ===== COLORS ===== */
+
+		/* General */
+		--color-background: var(--color-neutral-900);
+		--color-foreground: var(--color-white);
+
+		/* Secondary */
+		--color-secondary: var(--color-neutral-800);
+		--color-secondary-foreground: var(--color-neutral-50);
+
+		/* Muted */
+		--color-muted: var(--color-neutral-800);
+		--color-muted-foreground: var(--color-neutral-400);
+
+		/* Primary */
+		--color-primary: var(--color-violet-500);
+		--color-primary-foreground: var(--color-white);
+
+		/* Border */
+		--color-border: var(--color-neutral-800);
+		--color-input: var(--color-neutral-900);
+
+		/* Accent */
+		--color-accent: var(--color-neutral-800);
+		--color-accent-foreground: var(--color-neutral-50);
+
+		/* Error */
+		--color-error: var(--color-red-500);
+		--color-error-foreground: var(--color-white);
+		--color-error-subtle: var(--color-red-950);
+		--color-error-subtle-foreground: var(--color-red-300);
+		--color-error-subtle-stroke: var(--color-red-900);
+
+		/* Success */
+		--color-success: var(--color-lime-500);
+		--color-success-foreground: var(--color-neutral-950);
+		--color-success-subtle: var(--color-lime-950);
+		--color-success-subtle-foreground: var(--color-lime-300);
+		--color-success-subtle-stroke: var(--color-lime-900);
+
+		/* Warning */
+		--color-warning: var(--color-amber-500);
+		--color-warning-foreground: var(--color-neutral-950);
+		--color-warning-subtle: var(--color-amber-950);
+		--color-warning-subtle-foreground: var(--color-amber-300);
+		--color-warning-subtle-stroke: var(--color-amber-900);
+
+		/* Info */
+		--color-info: var(--color-blue-500);
+		--color-info-foreground: var(--color-white);
+		--color-info-subtle: var(--color-blue-950);
+		--color-info-subtle-foreground: var(--color-blue-300);
+		--color-info-subtle-stroke: var(--color-blue-900);
+
+		/* Popover */
+		--color-popover: var(--color-neutral-900);
+		--color-popover-foreground: var(--color-neutral-50);
+
+		/* Card */
+		--color-card: var(--color-neutral-900);
+		--color-card-foreground: var(--color-neutral-50);
+
+		/* Destructive */
+		--color-destructive: var(--color-red-600);
+
+		/* Ring */
+		--color-ring: var(--color-violet-600);
+	}
+}
+
+*,
+::after,
+::before,
+::backdrop,
+::file-selector-button {
+	border-color: var(--color-border, currentColor);
+}
+
+input::placeholder,
+textarea::placeholder {
+	color: var(--color-muted-foreground);
+}
+
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+	cursor: pointer;
+}
+
+body {
+	@apply bg-background text-foreground;
+}

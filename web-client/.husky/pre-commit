@@ -1,5 +1,0 @@
-cd web-client
-
-npm run lint:check
-npm run types:check
-npm run format:check
