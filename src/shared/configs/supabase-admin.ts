@@ -1,4 +1,4 @@
-import {createClient} from "@supabase/supabase-js"
+import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl: string = process.env.SUPABASE_URL ?? ""
 const supabaseServiceRoleKey: string = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ""
