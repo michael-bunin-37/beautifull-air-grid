@@ -1,0 +1,415 @@
+---
+name: architecture
+description: >
+ Comprehensive guide to Feature-Sliced Design (FSD) architecture, layer structure, import rules, folder organization, and best practices for this project.
+---
+
+# Feature-Sliced Design (FSD) Architecture
+
+## Overview
+
+This project follows **Feature-Sliced Design (FSD)** architecture, a methodology for organizing frontend code into logical, scalable layers. FSD helps maintain clear boundaries, improve code reusability, and make the codebase easier to navigate and maintain.
+
+## Layer Structure
+
+The project is organized into five main layers, each with a specific purpose:
+
+```
+app → widgets → features → entities → shared
+```
+
+### Layer Hierarchy
+
+```mermaid
+graph TD
+    App[app - Application Entry Points]
+    Widgets[widgets - Complex UI Compositions]
+    Features[features - User Interactions]
+    Entities[entities - Business Entities]
+    Shared[shared - Reusable Infrastructure]
+
+    App --> Widgets
+    Widgets --> Features
+    Widgets --> Entities
+    Features --> Entities
+    Features --> Features
+    Entities --> Entities
+    Features --> Shared
+    Entities --> Shared
+    Widgets --> Shared
+    App --> Shared
+```
+
+### Layer Descriptions
+
+1. **`app/`** - Application entry points, routing, providers
+   - Next.js 15 App Router pages and layouts
+   - Global providers and configuration
+   - Example: `src/app/page.tsx`, `src/app/layout.tsx`
+
+2. **`widgets/`** - Complex UI compositions
+   - Composed from multiple features and entities
+   - Complex business logic combinations
+   - Example: `src/widgets/layout/` - header with navigation, actions, logo
+
+3. **`features/`** - User interactions and business features
+   - Self-contained user-facing functionality
+   - Can use entities and other features
+   - Example: `src/features/ai-rewriter/` - AI text rewriting feature
+
+4. **`entities/`** - Business entities and domain models
+   - Core business concepts (Deal, User, File, etc.)
+   - Data models, API calls, business logic
+   - Example: `src/entities/deal/` - deal entity with API, hooks, types
+
+5. **`shared/`** - Reusable infrastructure
+   - UI components, utilities, helpers, constants
+   - Framework-agnostic code
+   - Example: `src/shared/ui/button.tsx`, `src/shared/helpers/`
+
+## Import Rules
+
+### Standard FSD Rules
+
+- **Lower layers can import from higher layers** (app → widgets → features → entities → shared)
+- **Higher layers CANNOT import from lower layers** (entities cannot import from features)
+
+### Project-Specific Nuances
+
+This project has **relaxed import rules** for better flexibility:
+
+1. **Entities ↔ Features (Bidirectional)**
+   - `entities` and `features` can import from each other
+   - This allows features to use entity components and vice versa
+   - Example: `entities/deal/ui` can import `features/DealActionsFeature`
+   - Example: `features/ai-rewriter` can use `entities/file` for file uploads
+
+2. **Within-Layer Imports**
+   - Features can import other features at the same level
+   - Entities can import other entities at the same level
+   - Example: `features/auth-sign-in` → `features/auth-with-google`
+   - Example: `entities/deal` → `entities/user` (if needed)
+
+3. **Shared Layer**
+   - Can be imported by all layers
+   - Should NOT import from any other layer
+   - Contains only framework-agnostic, reusable code
+
+### Import Examples
+
+```typescript
+// ✅ CORRECT: Feature using Entity
+// src/features/ai-rewriter/hooks/use-ai-rewriter.tsx
+import { usePostFile } from "@/entities/file"
+
+// ✅ CORRECT: Entity UI using Feature
+// src/entities/deal/ui/deal.tsx
+import { DealActionsFeature } from "@/features/deal-actions"
+
+// ✅ CORRECT: Feature using another Feature
+// src/features/auth-sign-in/ui/sign-in-form.tsx
+import { AuthWithGoogle } from "@/features/auth-with-google"
+
+// ✅ CORRECT: Widget using Features and Entities
+// src/widgets/layout/ui/layout-header.tsx
+import { LayoutHeaderNav } from "./layout-header-nav"
+import { useSession } from "@/entities/session"
+
+// ❌ WRONG: Entity importing from Widget
+// src/entities/deal/ui/deal.tsx
+import { LayoutHeader } from "@/widgets/layout" // ❌ Cannot import from widgets
+
+// ❌ WRONG: Shared importing from Entity
+// src/shared/helpers/deal.ts
+import { TDeal } from "@/entities/deal" // ❌ Shared cannot import from entities
+```
+
+## Folder Structure Within Layers
+
+Each `entity` or `feature` follows a consistent folder structure:
+
+```
+{entity|feature}/
+├── api/              # API calls to backend
+├── hooks/            # Custom React hooks and TanStack Query hooks
+├── model/            # Types, constants, contexts, business logic
+├── ui/               # React components (optional)
+├── helpers.tsx       # Pure helper functions (optional)
+└── index.ts          # Public API exports
+```
+
+### Folder Descriptions
+
+#### `api/` - API Functions
+
+- Contains functions that make HTTP requests to the backend
+- One file per operation (e.g., `get-deal.ts`, `post-deal.ts`)
+- Each file exports: `Params` type, `Response` type, and the function
+- Example structure:
+
+```typescript
+// api/get-deal.ts
+export type GetDealParams = { id: string }
+export type GetDealResponse = TDeal
+export const getDeal = (params: GetDealParams): Promise<GetDealResponse>
+```
+
+#### `hooks/` - Custom Hooks
+
+- React hooks for component logic
+- TanStack Query hooks (useQuery, useMutation)
+- One file per hook (e.g., `use-get-deal.ts`, `use-post-deal.ts`)
+- Example structure:
+
+```typescript
+// hooks/use-get-deal.ts
+export type UseGetDealOptions = UseQueryOptions<GetDealResponse, Error>
+export const useGetDeal = (params: GetDealParams, options?: Partial<UseGetDealOptions>)
+```
+
+#### `model/` - Business Logic
+
+- **Types** (`types.ts`) - TypeScript type definitions with `T` prefix
+- **Constants** (`constants.ts`) - Business constants, labels, enums
+- **Contexts** (`context.ts`) - React contexts if needed
+- All business logic that doesn't belong to UI or API
+- Example structure:
+
+```typescript
+// model/types.ts
+export type TDeal = { id: string; title: string; ... }
+export enum TDealStatus { CREATED = "CREATED", ... }
+
+// model/constants.ts
+export const DEAL_STATUS_LABELS: Record<TDealStatus, string> = { ... }
+```
+
+#### `ui/` - React Components (Optional)
+
+- React components for rendering
+- Only create if UI components are needed
+- Can be omitted if entity/feature doesn't have visual representation
+- Example: `src/entities/file/` has no `ui/` folder (file operations only)
+
+#### `helpers.tsx` - Pure Helper Functions (Optional)
+
+- Pure functions that don't depend on external variables
+- Must follow SOLID principles
+- Only create if there are frequently used helper functions
+- Alternative: use `src/shared/helpers/{domain}.ts` for global helpers
+- Example: `src/shared/helpers/number.ts`, `src/shared/helpers/file.ts`
+
+## Barrel Exports Pattern
+
+All public APIs are exported through `index.ts` files at each level.
+
+### Root Level Export
+
+```typescript
+// entities/deal/index.ts
+export * from "./model"
+export * from "./api"
+export * from "./hooks"
+// Note: ui/ is only exported if it exists
+```
+
+### Subfolder Exports
+
+```typescript
+// entities/deal/api/index.ts
+export * from "./get-deal"
+export * from "./get-deal-list"
+export * from "./post-deal"
+
+// entities/deal/hooks/index.ts
+export * from "./use-get-deal"
+export * from "./use-get-deal-list"
+export * from "./use-post-deal"
+
+// entities/deal/model/index.ts
+export * from "./types"
+export * from "./constants"
+```
+
+### Usage
+
+```typescript
+// ✅ Import from public API
+import { TDeal, getDeal, useGetDeal } from "@/entities/deal"
+
+// ❌ Don't import from internal paths
+import { TDeal } from "@/entities/deal/model/types" // ❌ Use public API instead
+```
+
+## Complete Entity Example
+
+Here's a complete example of an entity structure:
+
+```
+src/entities/deal/
+├── api/
+│   ├── get-deal.ts           # Single operation: get deal by ID
+│   ├── get-deal-list.ts      # Single operation: get deal list
+│   ├── post-deal.ts          # Single operation: create deal
+│   └── index.ts              # Exports all API functions
+├── hooks/
+│   ├── use-get-deal.ts       # Query hook for getting deal
+│   ├── use-get-deal-list.ts  # Query hook for deal list
+│   ├── use-post-deal.ts      # Mutation hook for creating deal
+│   └── index.ts              # Exports all hooks
+├── model/
+│   ├── types.ts              # TDeal, TDealStatus, TDealType, etc.
+│   ├── constants.ts          # DEAL_STATUS_LABELS, DEAL_TYPE_LABELS, etc.
+│   └── index.ts              # Exports types and constants
+├── ui/
+│   ├── deal.tsx              # Deal component
+│   └── index.ts              # Exports UI components
+└── index.ts                  # Public API: exports model, api, hooks, ui
+```
+
+### Example Files
+
+**`api/get-deal.ts`:**
+
+```typescript
+import { api } from "@/shared/configs/api"
+import { TDeal } from "@/entities/deal/model"
+
+export type GetDealParams = {
+	id: string
+}
+
+export type GetDealResponse = TDeal
+
+export const getDeal = (params: GetDealParams): Promise<GetDealResponse> => {
+	return api.get(`v1/deals/${params.id}`).json<GetDealResponse>()
+}
+```
+
+**`hooks/use-get-deal.ts`:**
+
+```typescript
+import { getDeal, GetDealParams, GetDealResponse } from "@/entities/deal/api"
+import { QueryKeys } from "@/shared/constants/tanstack-query"
+import { queryOptions, useQuery, UseQueryOptions } from "@tanstack/react-query"
+
+export type UseGetDealOptions = UseQueryOptions<GetDealResponse, Error>
+
+export const getDealQueryKey = (params: GetDealParams) => [QueryKeys.DEAL, params.id]
+
+export const getDealQueryOptions = (
+	params: GetDealParams,
+	options?: Partial<UseGetDealOptions>
+) => {
+	return queryOptions({
+		queryKey: getDealQueryKey(params),
+		queryFn: () => getDeal(params),
+		retry: 0,
+		...options,
+	})
+}
+
+export const useGetDeal = (params: GetDealParams, options?: Partial<UseGetDealOptions>) => {
+	return useQuery(getDealQueryOptions(params, options))
+}
+```
+
+**`model/types.ts`:**
+
+```typescript
+export type TDeal = {
+	id: string
+	userId: string
+	title: string
+	description: string
+	type: TDealType
+	status: TDealStatus
+	// ... more fields
+}
+
+export enum TDealStatus {
+	CREATED = "CREATED",
+	APPLICATION = "APPLICATION",
+	RUNNING = "RUNNING",
+	// ... more statuses
+}
+```
+
+## Complete Feature Example
+
+Here's a complete example of a feature structure:
+
+```
+src/features/ai-rewriter/
+├── hooks/
+│   ├── use-ai-rewriter.tsx   # Main feature hook with business logic
+│   └── index.ts
+├── model/
+│   ├── constants.ts          # Feature-specific constants
+│   └── index.ts
+└── ui/
+    ├── ai-rewriter.tsx       # Main feature component
+    ├── ai-rewriter-input.tsx # Input sub-component
+    ├── ai-rewriter-output.tsx # Output sub-component
+    ├── ai-rewriter-results.tsx # Results sub-component
+    └── index.ts
+```
+
+## Checklists
+
+### Creating a New Entity
+
+Use this checklist when creating a new entity:
+
+- [ ] Create folder in `src/entities/{name}/`
+- [ ] Create `model/types.ts` with types (use `T` prefix: `TEntityName`)
+- [ ] Create `model/constants.ts` if constants are needed
+- [ ] Create `model/index.ts` to export types and constants
+- [ ] Create `api/` folder with API functions (one file per operation)
+- [ ] Create `api/index.ts` to export all API functions
+- [ ] Create `hooks/` folder with TanStack Query hooks (one file per hook)
+- [ ] Create `hooks/index.ts` to export all hooks
+- [ ] Create `ui/` folder only if UI components are needed
+- [ ] Create `ui/index.ts` if `ui/` exists
+- [ ] Create root `index.ts` to export public API (model, api, hooks, ui if exists)
+- [ ] Follow naming conventions: kebab-case files, camelCase functions, `T` prefix for types
+
+### Creating a New Feature
+
+Use this checklist when creating a new feature:
+
+- [ ] Create folder in `src/features/{name}/`
+- [ ] Create `model/` folder for business logic (types, constants)
+- [ ] Create `model/index.ts` to export model
+- [ ] Create `hooks/` folder for custom hooks
+- [ ] Create `hooks/index.ts` to export hooks
+- [ ] Create `ui/` folder for React components
+- [ ] Create `ui/index.ts` to export UI components
+- [ ] Create root `index.ts` to export public API (model, hooks, ui)
+- [ ] Create `helpers.tsx` only if pure helper functions are needed
+- [ ] Follow naming conventions consistently
+- [ ] Use existing UI components from `@/shared/ui/` when possible
+
+## Edge Cases and Exceptions
+
+### Optional Folders
+
+- **`ui/` folder** - Only create if the entity/feature needs UI components
+  - Example: `src/entities/file/` has no `ui/` folder (file operations only)
+  - Example: `src/entities/deal/` has `ui/` folder (deal display component)
+
+- **`helpers.tsx`** - Only create if there are frequently used pure functions
+  - Must be pure functions (no external dependencies)
+  - Must follow SOLID principles
+  - Alternative: use `src/shared/helpers/{domain}.ts` for global helpers
+
+### Empty Folders
+
+- Empty folders during development are acceptable
+- Example: `src/features/auth/` and `src/features/session/` may exist but be empty during development
+
+### Cross-Layer Dependencies
+
+- Remember: `entities` ↔ `features` can import each other
+- Features can import other features at the same level
+- Always prefer importing from public API (`index.ts`) rather than internal paths

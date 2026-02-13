@@ -1,9 +1,75 @@
 {
-	"home": {
-		"title": "Beautiful Air Grid",
-		"description": "Beautiful Air Grid is a platform for creating and sharing beautiful air grids."
+	"meta": {
+		"home": {
+			"title": "Beautiful Air Grid",
+			"description": "Beautiful Air Grid is a platform for creating and sharing beautiful air grids."
+		}
 	},
-
+	"common": {
+		"actions": {
+			"close": "Close",
+			"save": "Save",
+			"cancel": "Cancel",
+			"edit": "Edit",
+			"delete": "Delete",
+			"copy": "Copy",
+			"download": "Download"
+		},
+		"status": {
+			"loading": "Loading...",
+			"no_results": "No data",
+			"success": "Success",
+			"error": "Error",
+			"processing": "Processing..."
+		},
+		"navigation": {
+			"home": "Home",
+			"back": "Back",
+			"next": "Next",
+			"previous": "Previous"
+		},
+		"errors": {
+			"please_sign_in": "Please sign in",
+			"something_went_wrong": "Something went wrong"
+		}
+	},
+	"home": {
+		"page": {
+			"title": "AirGrid Employees Manager",
+			"description": "Welcome to the AirGrid Employees Management System. Manage your employees with ease."
+		}
+	},
+	"employees-table": {
+		"page": {
+			"title": "Employees",
+			"description": "Manage your employees"
+		},
+		"columns": {
+			"id": "ID",
+			"createdAt": "Created At",
+			"role": "Role",
+			"name": "Name",
+			"email": "Email",
+			"phone": "Phone",
+			"address": "Address",
+			"city": "City",
+			"state": "State",
+			"zip": "Zip",
+			"country": "Country",
+			"dateOfBirth": "Date of Birth",
+			"emergencyContactName": "Emergency Contact Name",
+			"emergencyContactPhone": "Emergency Contact Phone",
+			"emergencyContactRelationship": "Emergency Contact Relationship",
+			"emergencyContactAddress": "Emergency Contact Address",
+			"emergencyContactCity": "Emergency Contact City",
+			"emergencyContactState": "Emergency Contact State",
+			"emergencyContactZip": "Emergency Contact Zip",
+			"emergencyContactCountry": "Emergency Contact Country"
+		},
+		"status": {
+			"no_data": "No data"
+		}
+	},
 	"employee": {
 		"role": {
 			"MANAGER": "Manager",
@@ -11,7 +77,8 @@
 			"DESIGNER": "Designer",
 			"MARKETING_SPECIALIST": "Marketing Specialist",
 			"HR_MANAGER": "HR Manager",
-			"ACCOUNTANT": "Accountant"
+			"ACCOUNTANT": "Accountant",
+			"OTHER": "Other"
 		}
 	}
 }

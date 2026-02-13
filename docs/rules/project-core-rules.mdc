@@ -1,0 +1,217 @@
+---
+alwaysApply: true
+---
+
+# Project Core Rules
+
+This document serves as an index to detailed documentation files. Each section contains critical rules for quick reference and links to comprehensive guides.
+
+## Project Architecture & Structure
+
+> 📄 **Detailed Documentation:** [fsd-architecture.mdc](fsd-architecture.mdc)
+
+### When to Use
+
+Refer to the detailed FSD architecture guide when:
+
+- Creating new entities or features
+- Understanding layer dependencies and import rules
+- Organizing code into proper FSD structure
+- Setting up folder structure for new components
+
+### Key Rules
+
+- **Layer structure:** `app` → `widgets` → `features` → `entities` → `shared`
+- **Entities ↔ Features:** Can import from each other (bidirectional)
+- **Within-layer imports:** Features can import other features, entities can import other entities
+- **Folder structure:** Each entity/feature has `api/`, `hooks/`, `model/`, `ui/` (optional), `helpers.tsx` (optional)
+- **Barrel exports:** All public APIs through `index.ts` files
+- **One file = one operation:** Never group multiple operations in a single file
+- **Public API only:** Always import from `index.ts`, never from internal paths
+
+## File Organization & Naming
+
+> 📄 **Detailed Documentation:** [file-organization.mdc](file-organization.mdc)
+
+### When to Use
+
+Refer to the detailed file organization guide when:
+
+- Naming files, functions, components, types, or constants
+- Creating new API functions, hooks, or components
+- Understanding type patterns and naming conventions
+- Organizing helper functions
+
+### Key Rules
+
+- **Files:** kebab-case (`get-deal.ts`, `use-post-file.ts`)
+- **Functions/Hooks:** camelCase (`getDeal`, `usePostFile`)
+- **Components:** PascalCase (`DealCard`, `AIRewriter`)
+- **Types:** PascalCase with `T` prefix (`TDeal`, `TFile`) - **strict requirement**
+- **Constants:** UPPER_SNAKE_CASE (`MAX_FILE_SIZE`, `DEAL_STATUS_LABELS`)
+- **File-export match:** File name must match exported entity name (converted to appropriate case)
+- **One file = one operation:** Strict rule - never group multiple operations
+- **Explicit types:** No type inference - all types must be explicit
+
+## Next.js 15 App Router
+
+### When to Use
+
+When creating pages, layouts, or working with routing in the application.
+
+### Key Rules
+
+- Use Next.js 15 App Router (not Pages Router)
+- All pages are in `src/app/` directory
+- Use Server Components by default, add `"use client"` only when needed
+- Server Components: async components, data fetching, no useState/useEffect
+- Client Components: interactivity, hooks, browser APIs
+
+## Component Structure
+
+### When to Use
+
+When creating or modifying React components.
+
+### Key Rules
+
+- Use functional components with TypeScript
+- Props type should be named `ComponentNameProps`
+- Export component with named export: `export {ComponentName}`
+- Use `React.forwardRef` for components that need ref forwarding
+- Always use `displayName` for forwardRef components
+- Use `type` (not `interface`) for component props
+- Use `cn()` helper from `@/shared/helpers/shadcn-ui` for className merging
+
+## JSX & Tailwind CSS Styling
+
+> 📄 **Detailed Documentation:** [jsx-tailwind.mdc](jsx-tailwind.mdc)
+
+### When to Use
+
+Refer to the detailed JSX & Tailwind guide when:
+
+- Structuring JSX and ordering element attributes
+- Writing or grouping Tailwind CSS classes
+- Using `cn()` or `cva()` functions
+- Choosing between semantic and raw colors
+- Working with icons from `react-icons`
+
+### Key Rules
+
+- Use Tailwind CSS utility classes exclusively, no custom CSS files unless absolutely necessary
+- **Class order:** layout → position → sizing → spacing → typography → colors → borders → effects → states
+- Use `cn()` for conditional classes, className merge, and complex combos
+- Use `cva()` **only** for reusable UI components in `shared/ui/`
+- **Semantic colors:** Always prefer tokens from `@src/styles/globals.css` (auto dark mode)
+- **No explicit `dark:` classes** — semantic CSS variables handle dark mode automatically
+- **Icons:** Use `size={number}` attribute, not `className` for sizing
+- **size-{value}:** Always use when width equals height (HTML elements, not icons)
+- **Responsive:** Place `sm:/md:/lg:` modifiers next to the base property they modify
+
+## TypeScript Standards
+
+### When to Use
+
+When writing TypeScript code, defining types, or working with type safety.
+
+### Key Rules
+
+- Use TypeScript strict mode
+- Prefer `type` over `interface` for component props
+- Use explicit return types for functions (no inference)
+- Path alias `@/*` maps to `./src/*`
+- Target ES2017, use modern syntax
+- All types must use `T` prefix (strict requirement)
+
+## React Query (TanStack Query)
+
+### When to Use
+
+When fetching server state, creating query hooks, or working with mutations.
+
+### Key Rules
+
+- Use `@tanstack/react-query` for server state
+- Query/mutation keys in constants (`QueryKeys`, `MUTATION_KEYS`)
+- Hooks in `hooks/` folder (one file per hook)
+- API functions in `api/` folder (one file per operation)
+- Use `queryOptions` helper for query configuration
+- Export query key functions: `{operation}QueryKey` or `get{Operation}MutationKey`
+
+## UI Components (shadcn/ui)
+
+### When to Use
+
+When creating or using UI components in the application.
+
+### Key Rules
+
+- Use existing components from `@/shared/ui/` before creating new ones
+- All UI components use Radix UI primitives
+- Follow shadcn/ui patterns for consistency
+- Use Controller components from `@/shared/ui/*-with-controller` for form integration
+
+## Icons & Assets
+
+### When to Use
+
+When using icons or images in components.
+
+### Key Rules
+
+- Use `react-icons` library
+- Import only needed icons: `import { LuIcon } from 'react-icons/lu'`
+- Available sets: Lu (Lucide Icons - "react-icons/lu") - primary, Io (Ionicons), etc.
+- Use Next.js `Image` component for optimization
+- Static assets in `/public/assets/`
+- Remote images allowed in next.config
+
+## Forms
+
+### When to Use
+
+When creating forms or working with form validation.
+
+### Key Rules
+
+- Use `react-hook-form` for form management
+- Use Zod schemas with `@hookform/resolvers/zod`
+- Controller components in `@/shared/ui/input-with-controller`
+- Pattern: controlled inputs with validation
+
+## Quick Reference Checklists
+
+### When Creating New Features
+
+1. Ask about feature location in FSD structure
+2. Create proper folder structure (ui/, api/, hooks/, model/, helpers.tsx if needed)
+3. Add TypeScript types with `T` prefix
+4. Export through index.ts
+5. Use existing UI components from @/shared/ui/
+6. Follow naming conventions consistently (see [file-organization.mdc](file-organization.mdc))
+
+### When Modifying Components
+
+1. Maintain existing patterns and structure
+2. Don't break TypeScript types
+3. Keep Tailwind classes organized
+4. Update exports if needed
+5. Follow naming conventions
+
+### When Working with Styles
+
+1. Always use Tailwind utilities
+2. Use tailwind config for colors and fonts
+3. Use cn() for conditional classes
+4. Use custom breakpoints from tailwind
+
+## Code Generation Preferences
+
+- Generate TypeScript, not JavaScript
+- Include proper types and interfaces (with `T` prefix for types)
+- Use functional components with hooks
+- Follow existing code patterns in the project
+- Add JSDoc comments for complex logic
+- Prefer explicit over implicit code
+- No type inference - all types must be explicit

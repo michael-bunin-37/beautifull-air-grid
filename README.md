@@ -1,6 +1,6 @@
 # Beautiful Air Grid
 
-This project is a technical assignment solution for the **MarTech** team at **GuruApps**. It implements a high-performance, Airtable-like interface capable of handling large datasets with real-time collaboration features.
+Implements a high-performance, Airtable-like interface capable of handling large datasets with real-time collaboration features.
 
 ## 🚀 Overview
 
@@ -25,6 +25,7 @@ The technology choices were made to prioritize performance, developer experience
 - **[Next.js 16](https://nextjs.org/)**: The framework for React, used for both the frontend and the Backend-for-Frontend (BFF) API layer.
 - **[TypeScript](https://www.typescriptlang.org/)**: For static type checking and improved developer tooling.
 - **[React 19](https://react.dev/)**: Leveraging the latest concurrent rendering features.
+- **[next-intl](https://next-intl-docs.vercel.app/)**: Handles internationalization (i18n) using an `as-needed` routing strategy (URLs are prefixed with the locale only when necessary).
 
 ### Data & State Management
 
@@ -67,6 +68,20 @@ The project utilizes **Next.js API Routes** as the BFF layer.
 
 - **Virtualization**: Rendering 50,000 rows in the DOM simultaneously would crash the browser. `TanStack Virtual` is used to render only the visible rows (plus a small buffer), ensuring smooth scrolling performance regardless of dataset size.
 - **Optimistic Updates**: Using `TanStack Query` and `Immer`, the UI updates immediately when a user makes a change, without waiting for the server response. If the request fails, the state is rolled back.
+
+---
+
+## 📚 Documentation & Guidelines
+
+This project includes a comprehensive set of documentation and rules located in the `docs` folder. These files serve as a guide for both developers and AI agents to maintain code consistency and architectural integrity.
+
+- **`docs/rules/`**: Contains `.mdc` files that define:
+  - **Architecture**: Core architectural principles and patterns.
+  - **File Organization**: Strict file structure rules.
+  - **Code Style**: Rules for JSX, Tailwind, and general coding standards.
+  - **Project Core Rules**: High-level project guidelines.
+
+These documents are essential for understanding the codebase structure and development workflow.
 
 ---
 

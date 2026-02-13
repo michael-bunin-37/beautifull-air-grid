@@ -1,11 +1,11 @@
 import "../globals.css"
-import type {Metadata} from "next"
-import {Geist, Geist_Mono} from "next/font/google"
-import {hasLocale, NextIntlClientProvider} from "next-intl"
-import {notFound} from "next/navigation"
-import {routing} from "@/i18n/routing"
-import {getMessages, getTranslations, setRequestLocale} from "next-intl/server"
-import {AppProvider} from "@/providers/app-provider"
+import type { Metadata } from "next"
+import { Geist, Geist_Mono } from "next/font/google"
+import { hasLocale, NextIntlClientProvider } from "next-intl"
+import { notFound } from "next/navigation"
+import { routing } from "@/i18n/routing"
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server"
+import { AppProvider } from "@/providers/app-provider"
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 })
 
 export const generateMetadata = async () => {
-	const t = await getTranslations("home")
+	const t = await getTranslations("meta.home")
 
 	return {
 		title: t("title"),
@@ -28,11 +28,11 @@ export const generateMetadata = async () => {
 
 type Props = Readonly<{
 	children: React.ReactNode
-	params: Promise<{locale: string}>
+	params: Promise<{ locale: string }>
 }>
 
-export default async function LocaleLayout({children, params}: Props) {
-	const {locale} = await params
+export default async function LocaleLayout({ children, params }: Props) {
+	const { locale } = await params
 	if (!hasLocale(routing.locales, locale)) notFound()
 	setRequestLocale(locale)
 
