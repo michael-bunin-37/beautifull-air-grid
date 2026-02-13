@@ -39,6 +39,7 @@ The technology choices were made to prioritize performance, developer experience
 ### UI & Performance
 
 - **[TanStack Virtual](https://tanstack.com/virtual/latest)**: Essential for rendering large lists and tables by only rendering items currently in view (virtualization).
+- **[React Concurrent Rendering](https://react.dev/blog/2022/03/29/react-v18#what-is-concurrent-react)**: Utilizes `useDeferredValue` in combination with virtualization to keep the UI responsive during heavy state updates (like filtering or sorting 50k+ rows).
 - **[TanStack Table](https://tanstack.com/table/latest)**: Headless UI library for building complex and powerful tables.
 - **[Tailwind CSS](https://tailwindcss.com/)**: Utility-first CSS framework for rapid UI development.
 - **[Shadcn UI](https://ui.shadcn.com/)**: Re-usable components built with Radix UI and Tailwind CSS.
